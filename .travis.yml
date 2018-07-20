@@ -1,0 +1,59 @@
+# This file was generated automatically from conda-smithy. To update this configuration,
+# update the conda-forge.yml and/or the recipe/meta.yaml.
+
+language: generic
+
+os: osx
+osx_image: xcode6.4
+
+env:
+  matrix:
+    - CONFIG=osx_target_platformosx-64
+
+  global:
+    # The BINSTAR_TOKEN secure variable. This is defined canonically in conda-forge.yml.
+    - secure: "qe5NUMWiriDDVMXM7LvpdmFwLe7F2lAufM+wZKiNSDC/JlE57ZBd/kcOJT3rfyOZParC5PPbz2U2LbkjGi0XTurjErnA648lb3hFy0xxjB9q9dgAwvMbmTURhR8AqKcpY/0kT4AiGnf+3Ix/OE4K2Z0ALRDCHcbqY1w4REKRZwKDEZ5myNIWLaLSqwrA8UP2luqj5GSFpvKVSSV2/dwsqTKlrD65+JT2f3C4vs/EmIR//v4k5bMwgO1VLiVjVfu5ZxfyMVo9bWkTtkUVxejfasTIJv6JMSfEUAZVV3ZQ3RYh1zNCUNw7Nw8p3tT45Olzvx6cBjdr29qvryqnNH1srcu/sG8Wj7AnHH6ydP4futizpqEIOqzYuljFRfvwt23P/99QefdVCH3ggYvzYhUd8zMS4dL6NKi1dlwIbwtW7iZQqAf+uPt5ADjI9MDoqfurHj+ZmXysCxbjufi0UmjFYpDe6ByvhqSGRoJ9N7Y+jRNVwebL0Eaa0Zaq30j1H2MAlYbwsBs5JIUwZfq5/iXsYhygIISrKD5Dw+pt+zoYl6jin87C78bdNUtaFMbGCOPD8cTGpqiBHxyb7B+isfFMpJbL/zPiSoSsE/4Rvsn+cHa+sNl+NsAH5TIcGVpENZV4Z6o8xqiXf0/PCwEK7/AwVwvApsxpeiqRuFBgwyRE/Lo="
+
+
+before_install:
+    # Fast finish the PR.
+    - |
+      (curl https://raw.githubusercontent.com/conda-forge/conda-forge-ci-setup-feedstock/master/recipe/ff_ci_pr_build.py | \
+          python - -v --ci "travis" "${TRAVIS_REPO_SLUG}" "${TRAVIS_BUILD_NUMBER}" "${TRAVIS_PULL_REQUEST}") || exit 1
+
+    # Remove homebrew.
+    - |
+      echo ""
+      echo "Removing homebrew from Travis CI to avoid conflicts."
+      curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall > ~/uninstall_homebrew
+      chmod +x ~/uninstall_homebrew
+      ~/uninstall_homebrew -fq
+      rm ~/uninstall_homebrew
+
+
+install:
+    # Install Miniconda.
+    - |
+      echo ""
+      echo "Installing a fresh version of Miniconda."
+      MINICONDA_URL="https://repo.continuum.io/miniconda"
+      MINICONDA_FILE="Miniconda3-latest-MacOSX-x86_64.sh"
+      curl -L -O "${MINICONDA_URL}/${MINICONDA_FILE}"
+      bash $MINICONDA_FILE -b
+
+    # Configure conda.
+    - |
+      echo ""
+      echo "Configuring conda."
+      source /Users/travis/miniconda3/bin/activate root
+      conda config --remove channels defaults
+      conda config --add channels defaults
+      conda config --add channels conda-forge
+      conda config --set show_channel_urls true
+      conda install --yes --quiet conda-forge-ci-setup=1
+      source run_conda_forge_build_setup
+
+script:
+  - conda build ./recipe -m ./.ci_support/${CONFIG}.yaml
+
+  - upload_or_check_non_existence ./recipe conda-forge --channel=main -m ./.ci_support/${CONFIG}.yaml
