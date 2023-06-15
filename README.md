@@ -1,11 +1,11 @@
-About r-fontliberation
-======================
+About r-fontliberation-feedstock
+================================
+
+Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/r-fontliberation-feedstock/blob/main/LICENSE.txt)
 
 Home: https://CRAN.R-project.org/package=fontLiberation
 
 Package license: OFL-1.1
-
-Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/r-fontliberation-feedstock/blob/main/LICENSE.txt)
 
 Summary: A placeholder for the Liberation fontset intended for the `fontquiver` package. This fontset covers the 12 combinations of families (sans, serif, mono) and faces (plain, bold, italic, bold italic) supported in R graphics devices.
 
